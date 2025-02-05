@@ -1,0 +1,128 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Adicionando ao schema.prisma existente
+
+enum ClientStatus {
+  LEAD
+  PROSPECT
+  CLIENT
+  INACTIVE
+}
+
+enum DealStage {
+  INITIAL_CONTACT
+  PROPOSAL_SENT
+  NEGOTIATION
+  CLOSED_WON
+  CLOSED_LOST
+}
+
+model Client {
+  id         String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name       String
+  email      String       @unique
+  phone      String?
+  company    String?
+  status     ClientStatus @default(LEAD)
+  assignedTo User         @relation("ClientAssignee", fields: [userId], references: [id])
+  userId     String       @db.Uuid
+  deals      Deal[]
+  notes      Note[]
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  @@map("clients")
+}
+
+model Deal {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title      String
+  value      Decimal   @db.Decimal(10, 2)
+  stage      DealStage @default(INITIAL_CONTACT)
+  client     Client    @relation(fields: [clientId], references: [id])
+  clientId   String    @db.Uuid
+  assignedTo User      @relation("DealAssignee", fields: [userId], references: [id])
+  userId     String    @db.Uuid
+  notes      Note[]
+  closeDate  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@map("deals")
+}
+
+model Note {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  content   String
+  client    Client?  @relation(fields: [clientId], references: [id])
+  clientId  String?  @db.Uuid
+  deal      Deal?    @relation(fields: [dealId], references: [id])
+  dealId    String?  @db.Uuid
+  createdBy User     @relation(fields: [userId], references: [id])
+  userId    String   @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("notes")
+}
+
+model User {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email           String   @unique
+  cnpj            String   @unique
+  nome            String?
+  senha           String
+  role            Role     @default(USER)
+  isEmailVerified Boolean  @default(false)
+  Token           Token[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  assignedClients Client[] @relation("ClientAssignee")
+  assignedDeals   Deal[]   @relation("DealAssignee")
+  notes           Note[]
+
+  // mapeia o nome da tabela que eu quero no meu banco de dados
+  @@map("users")
+}
+
+model Token {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  token       String
+  type        TokenType
+  expires     DateTime
+  blacklisted Boolean
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId      String    @db.Uuid
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("user_tokens")
+}
+
+enum Role {
+  USER
+  ADMIN
+  FINANCEIRO
+  MARKETING
+}
+
+enum TokenType {
+  ACCESS
+  REFRESH
+  RESET_PASSWORD
+  VERIFY_EMAIL
+}
