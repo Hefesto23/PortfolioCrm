@@ -1,5 +1,5 @@
 {
-  "name": "@portfolio-crm/backend",
+  "name": "back-end",
   "author": "Vinicius Raszl",
   "version": "1.0.0",
   "description": "A modern CRM application built with Node.js, TypeScript and Express.",

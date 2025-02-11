@@ -49,7 +49,7 @@ npm install
 3. Configure as variáveis de ambiente
 
 ```bash
-cp backend/.env.example backend/.env
+cp back-end/.env.example back-end/.env
 ```
 
 4. Configure o arquivo `.env` com suas credenciais:
@@ -103,19 +103,36 @@ npm run prisma:studio  # Abre interface do Prisma Studio
 
 ```
 portfolio-crm/
-├── backend/                  # API Node.js/Express
+├── .github/                    # Configurações do GitHub
+│   ├── workflows/             # GitHub Actions
+│   │   ├── backend.yml
+│   │   └── frontend.yml
+│   └── PULL_REQUEST_TEMPLATE.md
+│
+├── back-end/                  # API Node.js/Express
 │   ├── src/
-│   │   ├── config/          # Configurações
+│   │   ├── config/          # Configurações do sistema
 │   │   ├── modules/         # Módulos do sistema
-│   │   │   ├── users/       # Gestão de usuários
+│   │   │   ├── users/       # Gestão de usuários e autenticação
 │   │   │   ├── clients/     # Gestão de clientes
 │   │   │   ├── deals/       # Pipeline de vendas
 │   │   │   └── notes/       # Sistema de notas
 │   │   └── shared/          # Código compartilhado
-│   ├── prisma/              # Schema e migrações
+│   ├── prisma/              # Schema e migrações do banco
 │   └── tests/               # Testes automatizados
-└── frontend/                # Interface React
-    └── src/                 # (Em desenvolvimento)
+│
+├── front-end/               # Interface React
+│   ├── src/                 # (Em desenvolvimento)
+│   ├── public/
+│   ├── .env.example
+│   ├── .gitignore
+│   ├── package.json
+│   └── README.md
+│
+├── .gitignore                 # Gitignore global
+├── package.json               # Scripts do projeto raiz
+├── README.md                  # Documentação principal
+
 ```
 
 ## 🔐 Funcionalidades Implementadas
